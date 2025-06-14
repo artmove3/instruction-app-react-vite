@@ -5,7 +5,7 @@ import { addClasses } from './functions/addClasses';
 import { forwardButtonHandler } from './functions/forwardButtonHandler';
 
 function App() {
-	const [activeIndex, setActiveIndex] = useState(data[2].id);
+	const [activeIndex, setActiveIndex] = useState(data[0].id);
 
 	const isLastStep = data[data.length - 1].id === activeIndex;
 	const isFirstStep = data[0].id === activeIndex;
