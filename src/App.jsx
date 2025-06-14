@@ -1,35 +1,81 @@
-import { createElement, useState } from 'react';
-// import ReactLogo from './assets/react.svg?react';
-import reactLogo from './assets/react.svg';
-import './App.css';
-import { ShowDate } from './components/ShowDate';
+import { useState } from 'react';
+import styles from './App.module.css';
+import data from './assets/data.json';
+import { addClasses } from './functions/addClasses';
+import { forwardButtonHandler } from './functions/forwardButtonHandler';
 
 function App() {
-	const [count, setCount] = useState(0);
+	const [activeIndex, setActiveIndex] = useState(data[2].id);
 
-	const logoImg = createElement('img', { src: reactLogo });
-	const logoContainer = createElement('div', { key: 'logoContainer' }, logoImg);
-	const title = createElement('h1', { key: 'title' }, 'Vite + React');
-	const button = createElement(
-		'button',
-		{
-			key: 'button',
-			onClick: () => setCount((count) => count + 1),
-		},
-		`count is ${count}`,
+	const isLastStep = data[data.length - 1].id === activeIndex;
+	const isFirstStep = data[0].id === activeIndex;
+
+	return (
+		<div className={styles.container}>
+			<div className={styles.card}>
+				<h1>Инструкция по готовке пельменей</h1>
+				<div className={styles.steps}>
+					<div className={styles['steps-content']}>
+						{
+							data.find((dataArr) => {
+								return dataArr.id === activeIndex;
+							}).content
+						}
+					</div>
+					<ul className={styles['steps-list']}>
+						{data.map((dataArr) => {
+							return (
+								// не знаю, как избавиться от класса undefined
+								<li
+									className={
+										styles['steps-item'] +
+										' ' +
+										styles[addClasses(activeIndex, dataArr.id)]
+									}
+									key={dataArr.id}
+								>
+									<button
+										className={styles['steps-item-button']}
+										id={dataArr.id}
+										onClick={() => setActiveIndex(dataArr.id)}
+									>
+										{dataArr.id.substring(2, 3)}
+									</button>
+									{dataArr['title']}
+								</li>
+							);
+						})}
+					</ul>
+					<div className={styles['buttons-container']}>
+						<button
+							className={styles.button}
+							disabled={isFirstStep}
+							onClick={() =>
+								setActiveIndex(
+									(activeIndex) => data[Number(activeIndex) - 2].id,
+								)
+							}
+						>
+							Назад
+						</button>
+						<button
+							className={styles.button}
+							onClick={() =>
+								forwardButtonHandler(
+									isLastStep,
+									data,
+									activeIndex,
+									setActiveIndex,
+								)
+							}
+						>
+							{isLastStep ? 'Начать сначала' : 'Далее'}
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	);
-
-	const p = createElement('p', { key: 'p' }, `Edit src/App.jsx and save to test HMR`);
-
-	const card = createElement('div', { className: 'card', key: 'card' }, [button, p]);
-	const container = createElement('div', null, [
-		logoContainer,
-		title,
-		card,
-		ShowDate(),
-	]);
-
-	return container;
 }
 
 export default App;
