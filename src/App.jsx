@@ -2,13 +2,20 @@ import { useState } from 'react';
 import styles from './App.module.css';
 import data from './assets/data.json';
 import { addClasses } from './functions/addClasses';
-import { forwardButtonHandler } from './functions/forwardButtonHandler';
 
 function App() {
-	const [activeIndex, setActiveIndex] = useState(data[0].id);
+	const [activeIndex, setActiveIndex] = useState(0);
+	const [item, setItem] = useState(data);
 
-	const isLastStep = data[data.length - 1].id === activeIndex;
-	const isFirstStep = data[0].id === activeIndex;
+	const isLastStep = data.length - 1 === activeIndex;
+	const isFirstStep = activeIndex === 0;
+
+	const handlePrev = () => {
+		setActiveIndex((prev) => prev - 1);
+	};
+	const handleNext = () => {
+		setActiveIndex((prev) => (isLastStep ? 0 : prev + 1));
+	};
 
 	return (
 		<div className={styles.container}>
@@ -16,30 +23,27 @@ function App() {
 				<h1>Инструкция по готовке пельменей</h1>
 				<div className={styles.steps}>
 					<div className={styles['steps-content']}>
-						{
-							data.find((dataArr) => {
-								return dataArr.id === activeIndex;
-							}).content
-						}
+						{item[activeIndex].content}
 					</div>
 					<ul className={styles['steps-list']}>
-						{data.map((dataArr) => {
+						{item.map((dataArr, i) => {
 							return (
-								// не знаю, как избавиться от класса undefined
 								<li
 									className={
 										styles['steps-item'] +
 										' ' +
-										styles[addClasses(activeIndex, dataArr.id)]
+										styles[
+											addClasses(item[activeIndex].id, dataArr.id)
+										]
 									}
 									key={dataArr.id}
 								>
 									<button
 										className={styles['steps-item-button']}
 										id={dataArr.id}
-										onClick={() => setActiveIndex(dataArr.id)}
+										onClick={() => setActiveIndex(i)}
 									>
-										{dataArr.id.substring(2, 3)}
+										{i + 1}
 									</button>
 									{dataArr['title']}
 								</li>
@@ -50,25 +54,11 @@ function App() {
 						<button
 							className={styles.button}
 							disabled={isFirstStep}
-							onClick={() =>
-								setActiveIndex(
-									(activeIndex) => data[Number(activeIndex) - 2].id,
-								)
-							}
+							onClick={handlePrev}
 						>
 							Назад
 						</button>
-						<button
-							className={styles.button}
-							onClick={() =>
-								forwardButtonHandler(
-									isLastStep,
-									data,
-									activeIndex,
-									setActiveIndex,
-								)
-							}
-						>
+						<button className={styles.button} onClick={handleNext}>
 							{isLastStep ? 'Начать сначала' : 'Далее'}
 						</button>
 					</div>
